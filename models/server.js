@@ -7,7 +7,8 @@ class Server {
     constructor () {
         this.app = express();
         this.port = process.env.PORT;
-        this.path = '/api/user';
+        this.userPath = '/api/user';
+        this.authPath = '/api/auth';
 
         //conexion a la base de datos
         this.conectarDB();
@@ -35,7 +36,8 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.path , require('../routers/user'));
+        this.app.use(this.authPath , require('../routers/auth'));
+        this.app.use(this.userPath , require('../routers/user'));
     }
 
     listen() {
@@ -43,7 +45,6 @@ class Server {
             console.log('Aplicacion corriendo en el puerto ', process.env.PORT)
         })
     }
-
 }
 
 module.exports = Server;
