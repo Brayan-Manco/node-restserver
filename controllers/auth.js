@@ -7,9 +7,7 @@ const { generateJWT } = require('../helpers/generate-jwt');
 
 const login = async ( req = Request, res = Response ) =>{
     const { email, password} = req.body;
-
     try {
-
         //verificar si email existe 
         const user = await User.findOne({email});
         if(!user){
@@ -46,6 +44,48 @@ const login = async ( req = Request, res = Response ) =>{
     }
 }
 
+
+const googleSignin = async(req, res = response) => {
+    const { id_token } = req.body;
+    
+    try {
+        const { email, name, img } = await googleVerify( id_token );
+        let user = await User.findOne({ email });
+        if ( !user ) {
+            // Tengo que crearlo
+            const data = {
+                name,
+                email,
+                password: ':P',
+                img,
+                google: true
+            };
+            user = new User( data );
+            await user.save();
+        }
+        // Si el usuario en DB
+        if ( !user.state ) {
+            return res.status(401).json({
+                msg: 'Hable con el administrador, usuario bloqueado'
+            });
+        }
+        // Generar el JWT
+        const token = await generarJWT( user.id );
+        
+        res.json({
+            user,
+            token
+        });
+        
+
+    } catch (error) {
+        res.status(400).json({
+            msg: 'Token de Google no es válido'
+        })
+    }
+}
+
 module.exports = {
     login,
+    googleSignin,
 }

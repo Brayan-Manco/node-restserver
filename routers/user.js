@@ -41,8 +41,7 @@ router.put(
   userPut
 );
 
-router.post(
-  "/",
+router.post("/",
   [
     check("name", "nombre obligatorio").not().isEmpty(),
     check("password", "obligatorio y mas de tener mas de 6 letras").isLength({
